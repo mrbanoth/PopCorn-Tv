@@ -1,10 +1,10 @@
 import type React from "react"
-import { Inter } from "next/font/google"
+import { Manrope } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
+const manrope = Manrope({ subsets: ["latin"] })
 
 export const metadata = {
   title: "PopcornTV - Watch Movies and TV Shows Online",
@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={manrope.className} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           {children}
           <Toaster />
@@ -28,7 +28,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'

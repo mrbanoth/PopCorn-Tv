@@ -1,177 +1,56 @@
 "use client"
 
-import type React from "react"
-
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
+import { FormEvent, useMemo, useState } from "react"
 import Link from "next/link"
-import { Search, Bell, User, LogIn } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Menu, Search, UserRound, X } from "lucide-react"
 import { fetchContentfulData } from "@/lib/contentful"
+import { FeaturedMovie } from "@/components/featured-movie"
 import { MovieCard } from "@/components/movie-card"
 import { MainNav } from "@/components/main-nav"
-import { HeroCarousel } from "@/components/hero-carousel"
 import { Logo } from "@/components/logo"
+import { VideoPlayerModal } from "@/components/video-player-modal"
 
-interface Movie {
-  id: string
-  title: string
-  description: string
-  posterUrl: string
-  bannerUrl: string
-  videoUrl: string
-  releaseYear: number
-  duration: string
-  genres: string[]
-  cast: { name: string; character: string; imageUrl: string }[]
-  director: string
-}
-
-interface Category {
-  id: string
-  name: string
-  movies: Movie[]
-}
+type Movie = ReturnType<typeof fetchContentfulData>["categories"][number]["movies"][number]
 
 export default function BrowsePage() {
-  const router = useRouter()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([])
-  const [isSearching, setIsSearching] = useState(false)
+  const categories = useMemo(() => fetchContentfulData().categories, [])
+  const allMovies = useMemo(() => Array.from(new Map(categories.flatMap(c => c.movies).map(m => [m.id, m])).values()), [categories])
+  const [query, setQuery] = useState("")
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [playing, setPlaying] = useState<Movie | null>(null)
+  const featured = allMovies[2] || allMovies[0]
+  const results = query.trim() ? allMovies.filter(m => `${m.title} ${m.genres.join(" ")}`.toLowerCase().includes(query.toLowerCase())) : []
+  const submitSearch = (e: FormEvent) => { e.preventDefault(); setSearchOpen(true) }
 
-  useEffect(() => {
-    // Check authentication status but don't redirect
-    const authStatus = localStorage.getItem("popcorntvAuth")
-    setIsAuthenticated(authStatus === "true")
+  return <div className="min-h-screen overflow-x-hidden bg-[#07110f] text-white">
+    <div className="ambient ambient-one" /><div className="ambient ambient-two" />
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-white/5 bg-[#07110f]/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-20 max-w-[1500px] items-center gap-8 px-5 lg:px-10">
+        <Logo className="shrink-0" /><MainNav />
+        <form onSubmit={submitSearch} className="ml-auto hidden items-center rounded-full border border-white/10 bg-white/5 px-4 sm:flex">
+          <Search className="h-4 w-4 text-white/45" /><input value={query} onChange={e => setQuery(e.target.value)} onFocus={() => setSearchOpen(true)} placeholder="Search titles" className="w-36 bg-transparent px-3 py-2.5 text-sm outline-none lg:w-52" />
+          {query && <button type="button" onClick={() => setQuery("")}><X className="h-4 w-4 text-white/40" /></button>}
+        </form>
+        <Link href="/profile" className="grid h-10 w-10 place-items-center rounded-full border border-emerald-300/30 bg-emerald-300/10"><UserRound className="h-4 w-4 text-emerald-300" /></Link>
+        <button className="md:hidden"><Menu /></button>
+      </div>
+    </header>
 
-    // Fetch data from Contentful (mocked for now)
-    const data = fetchContentfulData()
-    setCategories(data.categories)
-
-    // Set featured movie
-    if (data.categories.length > 0 && data.categories[0].movies.length > 0) {
-      setFeaturedMovie(data.categories[0].movies[0])
-    }
-  }, [])
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!searchQuery.trim()) {
-      setIsSearching(false)
-      return
-    }
-
-    setIsSearching(true)
-
-    // Search across all categories
-    const movieResults = categories.flatMap((category) =>
-      category.movies.filter(
-        (movie) =>
-          movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          movie.description.toLowerCase().includes(searchQuery.toLowerCase()),
-      ),
-    )
-    
-    // Remove duplicates using Map with movie IDs as keys
-    const uniqueMoviesMap = new Map<string, Movie>();
-    movieResults.forEach((movie) => {
-      uniqueMoviesMap.set(movie.id, movie);
-    });
-    
-    setFilteredMovies(Array.from(uniqueMoviesMap.values()));
-  }
-
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/80 to-transparent">
-        <div className="container mx-auto px-4 py-4 flex items-center">
-          <div className="flex items-center">
-            <Link href="/browse">
-              <Logo className="mr-8" />
-            </Link>
-            <MainNav />
-          </div>
-
-          <div className="ml-auto flex items-center gap-4">
-            <form onSubmit={handleSearch} className="relative">
-              <Input
-                type="search"
-                placeholder="Search titles..."
-                className="w-[200px] bg-gray-900/50 border-gray-700 focus:border-gray-500"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button type="submit" variant="ghost" size="icon" className="absolute right-0 top-0 h-full">
-                <Search className="h-4 w-4" />
-              </Button>
-            </form>
-
-            {isAuthenticated ? (
-              <>
-                <Button variant="ghost" size="icon">
-                  <Bell className="h-5 w-5" />
-                </Button>
-                <Link href="/profile">
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <Link href="/auth/signin">
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <LogIn className="h-4 w-4" />
-                  Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
+    <main className="relative z-10 mx-auto max-w-[1500px] px-4 pb-20 pt-24 sm:px-6 lg:px-10">
+      {searchOpen && query.trim() ? <section className="min-h-[70vh] pt-10">
+        <div className="mb-8 flex items-end justify-between"><div><p className="eyebrow">Search</p><h1 className="text-3xl font-bold">Results for “{query}”</h1></div><button onClick={() => { setSearchOpen(false); setQuery("") }} className="secondary-action"><X className="h-4 w-4" /> Close</button></div>
+        <div className="poster-grid">{results.map(movie => <MovieCard key={movie.id} movie={movie} onPlay={setPlaying} />)}</div>
+        {!results.length && <p className="rounded-2xl border border-white/10 bg-white/5 p-10 text-white/50">No titles found. Try a genre or another movie name.</p>}
+      </section> : <>
+        <FeaturedMovie movie={featured} onPlay={setPlaying} />
+        <div className="mt-12 space-y-14">
+          {categories.slice(0, 7).map((category, categoryIndex) => <section key={category.id}>
+            <div className="mb-5 flex items-end justify-between"><div><p className="eyebrow">{categoryIndex === 0 ? "Everyone's watching" : "Curated for you"}</p><h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{category.name}</h2></div><button className="text-sm font-medium text-emerald-300/80 hover:text-emerald-300">View all →</button></div>
+            <div className="poster-grid">{category.movies.slice(0, 6).map((movie, i) => <MovieCard key={movie.id} movie={movie} onPlay={setPlaying} rank={categoryIndex === 0 ? i + 1 : undefined} />)}</div>
+          </section>)}
         </div>
-      </header>
-
-      <main className="pt-16">
-        {!isSearching ? (
-          <>
-            {categories.length > 0 && (
-              <HeroCarousel movies={categories.flatMap((category) => category.movies).slice(0, 5)} />
-            )}
-
-            <div className="container mx-auto px-4 py-8 space-y-8">
-              {categories.map((category) => (
-                <section key={category.id} className="space-y-4">
-                  <h2 className="text-xl font-semibold">{category.name}</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                    {category.movies.map((movie) => (
-                      <MovieCard key={movie.id} movie={movie} isAuthenticated={isAuthenticated} />
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="container mx-auto px-4 py-24">
-            <h2 className="text-2xl font-semibold mb-6">Search Results for "{searchQuery}"</h2>
-
-            {filteredMovies.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {filteredMovies.map((movie) => (
-                  <MovieCard key={movie.id} movie={movie} isAuthenticated={isAuthenticated} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No results found. Try a different search term.</p>
-            )}
-          </div>
-        )}
-      </main>
-    </div>
-  )
+      </>}
+    </main>
+    {playing && <VideoPlayerModal videoUrl={playing.videoUrl} title={`${playing.title} trailer`} onClose={() => setPlaying(null)} />}
+  </div>
 }
-

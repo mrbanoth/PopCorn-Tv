@@ -7,10 +7,10 @@ interface LogoProps {
 export function Logo({ className = "" }: LogoProps) {
   return (
     <Link href="/browse" className={className}>
-      <span className="font-bold text-2xl tracking-tight">
-        <span className="text-white">Popcorn</span>
-        <span className="text-red-600">TV</span>
+      <span className="font-black text-xl tracking-[-.04em] sm:text-2xl">
+        <span className="text-white">POPCORN</span>
+        <span className="text-emerald-300">TV</span>
       </span>
     </Link>
   )
-} 
+}

@@ -1,7 +1,8 @@
+"use client"
+
+import Image from "next/image"
 import Link from "next/link"
-import { Play, Info } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Info, Play, Plus } from "lucide-react"
 
 interface Movie {
   id: string
@@ -14,57 +15,27 @@ interface Movie {
   genres: string[]
 }
 
-interface FeaturedMovieProps {
-  movie: Movie
-}
-
-export function FeaturedMovie({ movie }: FeaturedMovieProps) {
+export function FeaturedMovie({ movie, onPlay }: { movie: Movie; onPlay: (movie: Movie) => void }) {
   return (
-    <div className="relative w-full h-[80vh] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10" />
-
-      <iframe
-        className="w-full h-full absolute inset-0"
-        src={`${movie.videoUrl}?autoplay=1&mute=1&controls=0&loop=1&modestbranding=1&showinfo=0&rel=0`}
-        title={movie.title}
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-      ></iframe>
-
-      <div className="absolute bottom-0 left-0 right-0 z-20 p-8 md:p-16 md:w-1/2">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">{movie.title}</h1>
-
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-green-500 font-semibold">98% Match</span>
-          <span>{movie.releaseYear}</span>
-          <span>{movie.duration}</span>
+    <section className="hero-shell relative min-h-[640px] overflow-hidden rounded-[28px] border border-white/10">
+      <Image src={movie.bannerUrl} alt="" fill priority className="object-cover object-center" />
+      <div className="absolute inset-0 hero-shade" />
+      <div className="relative z-10 flex min-h-[640px] max-w-2xl flex-col justify-end px-6 pb-16 pt-32 sm:px-12 lg:px-16">
+        <div className="mb-5 flex flex-wrap gap-2">
+          {movie.genres.slice(0, 3).map((genre) => <span className="genre-pill" key={genre}>{genre}</span>)}
         </div>
-
-        <div className="flex flex-wrap gap-2 mb-4">
-          {movie.genres.map((genre, index) => (
-            <Badge key={index} variant="outline" className="bg-transparent">
-              {genre}
-            </Badge>
-          ))}
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[.28em] text-emerald-300">PopcornTV Original</p>
+        <h1 className="max-w-xl text-5xl font-black leading-[.95] tracking-[-.04em] sm:text-7xl">{movie.title}</h1>
+        <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-white/70">
+          <span className="font-bold text-emerald-400">98% Match</span><span>{movie.releaseYear}</span><span>{movie.duration}</span><span className="rounded border border-white/30 px-1.5 py-0.5 text-[10px]">HD</span>
         </div>
-
-        <p className="text-gray-300 mb-6 line-clamp-3">{movie.description}</p>
-
-        <div className="flex gap-4">
-          <Button asChild className="bg-white text-black hover:bg-white/90 gap-2">
-            <Link href={`/movie/${movie.id}`}>
-              <Play className="h-5 w-5 fill-black" /> Play
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="gap-2">
-            <Link href={`/movie/${movie.id}`}>
-              <Info className="h-5 w-5" /> More Info
-            </Link>
-          </Button>
+        <p className="mt-5 max-w-lg text-sm leading-6 text-white/70 sm:text-base">{movie.description}</p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <button onClick={() => onPlay(movie)} className="primary-action"><Play className="h-4 w-4 fill-current" /> Play trailer</button>
+          <Link href={`/movie/${movie.id}`} className="secondary-action"><Info className="h-4 w-4" /> Details</Link>
+          <button className="icon-action" aria-label="Add to my list"><Plus className="h-5 w-5" /></button>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
-
