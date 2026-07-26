@@ -105,7 +105,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .dot-field-bottom { left:-10px; bottom:20px; }
 .reference-player { width:min(1280px,100%); height:min(820px,82vh); min-height:650px; position:relative; z-index:1; overflow:hidden; border-radius:20px; background:#0d0f0f; box-shadow:0 35px 75px rgba(35,94,73,.25); }
 .reference-hero { height:65%; position:relative; overflow:hidden; }
-.reference-overlay { position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,10,9,.88) 0%,rgba(5,10,9,.4) 43%,rgba(5,10,9,.05) 72%),linear-gradient(0deg,#0d0f0f 0%,transparent 38%); }
+.reference-hero-image { object-position:center 35%; filter:saturate(.72) contrast(1.06) hue-rotate(18deg); }
+.reference-overlay { position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,10,9,.94) 0%,rgba(5,10,9,.56) 38%,rgba(5,10,9,.06) 72%),linear-gradient(0deg,#0d0f0f 0%,transparent 42%),linear-gradient(180deg,rgba(0,30,25,.2),rgba(0,0,0,.08)); }
 .reference-header { position:absolute; z-index:2; top:0; left:0; right:0; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 7.5%; }
 .reference-nav { display:flex; gap:clamp(22px,3.5vw,60px); align-items:center; }
 .reference-nav a { font-size:13px; color:rgba(255,255,255,.48); transition:.2s ease; }
@@ -133,7 +134,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .reference-rail { height:calc(100% - 38px); display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; }
 .reference-rail::-webkit-scrollbar { display:none; }
 .reference-card { position:relative; flex:0 0 150px; height:100%; overflow:hidden; border-radius:7px; background:#202423; text-align:left; }
-.reference-card-wide { flex-basis:340px; }
+.reference-card-wide { flex-basis:360px; }
 .reference-card-shade { position:absolute; inset:0; background:linear-gradient(0deg,rgba(0,0,0,.85),transparent 60%); opacity:.6; }
 .reference-card-copy { position:absolute; z-index:2; left:20px; bottom:18px; display:flex; flex-direction:column; gap:5px; }
 .reference-card-copy strong { font-size:15px; }

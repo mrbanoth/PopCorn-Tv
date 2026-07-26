@@ -15,7 +15,7 @@ export default function BrowsePage() {
   const [playing, setPlaying] = useState<Movie | null>(null)
   const [query, setQuery] = useState("")
   const featured = fetchMovieById("16") || movies[0]
-  const visibleMovies = movies.filter(movie => movie.id !== featured.id && (!query || movie.title.toLowerCase().includes(query.toLowerCase()))).slice(0, 8)
+  const visibleMovies = movies.filter(movie => movie.id !== featured.id && movie.id !== "1" && (!query || movie.title.toLowerCase().includes(query.toLowerCase()))).slice(0, 8)
 
   return (
     <main className="reference-stage">
@@ -24,7 +24,7 @@ export default function BrowsePage() {
 
       <section className="reference-player">
         <div className="reference-hero">
-          <Image src={featured.bannerUrl} alt={featured.title} fill priority className="object-cover object-center" />
+          <Image src="/images/banners/forest-hero-v3.jpg" alt="Woman in a forest" fill priority className="reference-hero-image object-cover" />
           <div className="reference-overlay" />
 
           <header className="reference-header">
@@ -66,7 +66,7 @@ export default function BrowsePage() {
           <div className="reference-rail">
             {visibleMovies.map((movie, index) => (
               <button key={movie.id} className={index === 0 ? "reference-card reference-card-wide" : "reference-card"} onClick={() => setPlaying(movie)}>
-                <Image src={index === 0 ? movie.bannerUrl : movie.posterUrl} alt={movie.title} fill className="object-cover" />
+                <Image src={movie.posterUrl} alt={movie.title} fill className="object-cover" />
                 <span className="reference-card-shade" />
                 {index === 0 && <span className="reference-card-copy"><strong>{movie.title}</strong><small>{movie.duration} · {movie.genres.slice(0, 3).join(", ")}</small></span>}
                 {index === 0 && <span className="reference-play"><Play className="h-5 w-5 fill-current" /></span>}
